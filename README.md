@@ -38,6 +38,7 @@ Cygwin debe ser instalado junto con las utilidades Cron y Syslog-ng.
 Instalar MDBTools, la última versión disponible en [Github](http://www.github.com).
 
 Bajar el script desde el repositorio:
-<git clone git@github.com/efarias/Repmind.git>
+
+	$ git clone git@github.com/efarias/Repmind.git
 
 Crear el usuario Repmind.
