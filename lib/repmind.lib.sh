@@ -1,10 +1,10 @@
-## $Id: example.lib.sh,v 1.3 2010/05/13 18:16:29 wschlich Exp wschlich $
+## $Id: repmind.lib.sh,v 0.1 2010/11/14 3:19:20 efarias Exp efarias $$
 ## vim:ts=4:sw=4:tw=200:nu:ai:nowrap:
 
 ##
-## REQUIRED PROGRAMS
+## REQUISITOS
 ## =================
-## - rm
+## - MDBTools
 ## - mkdir
 ## - ls
 ##
@@ -15,14 +15,15 @@
 ##
 
 function __init() {
-
-	## -- BEGIN YOUR OWN APPLICATION INITIALIZATION CODE HERE --
-
+        echo "Celite Reportes de Minas -- Tau-iT Informática"
+        echo "Base de datos: "$DB_NAME
 	## parse command line options
-	while getopts ':ab:q' opt; do
+	while getopts ':eb:q' opt; do
 		case "${opt}" in
-			## option a
-			a)
+			## option e
+			e)
+                                echo "Exportando Registros desde "$DB_NAME
+                                #exportar_tablas
 				declare -i A=1
 				;;
 			## option b
@@ -70,22 +71,12 @@ function __init() {
 function __main() {
 
 	## -- BEGIN YOUR OWN APPLICATION MAIN CODE HERE --
-
-	local i
-	for i in debug info notice warning err crit alert emerg; do
-		__msg ${i} "this is a ${i} test"
-	done
-
-	rm -v /does/not/exist >>"${_L}" 2>&1
-	mkdir -v /does/not/exist >>"${_L}" 2>&1
-	ls -v /does/not/exist >>"${_L}" 2>&1
-
-	exampleFunction "${ApplicationVariable1}" "${ApplicationVariable2}"
-
-	fooFunction fooArgs
-
-	return 0 # success
-
+        echo $db_ASC
+        echo $db_MD5
+        if [$db_MD5 = 1]; then
+            echo "Fallo"
+        fi
+	echo $db
 	## -- END YOUR OWN APPLICATION MAIN CODE HERE --
 
 }
@@ -94,49 +85,25 @@ function __main() {
 ## application worker functions
 ##
 
-function exampleFunction() {
+function exportar_tablas() {
+        # Función para exportar cada tabla de la base de
+	# datos configurada en DB_ORI
 
-	## ----- head -----
-	##
-	## DESCRIPTION:
-	##   this function does something
-	##
-	## ARGUMENTS:
-	##   1: fooArgument (req): contains foo
-	##   2: barArgument (opt): contains bar
-	##
-	## GLOBAL VARIABLES USED:
-	##   /
-	##
+	for i in $( mdb-tables -1 $db); do
+		echo $i
+		mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
+	done
 
-	local fooArgument="${1}"
-	if [[ -z "${fooArgument}" ]]; then
-		__msg err "argument 1 (fooArgument) missing"
-		return 2 # error
-	fi
-	__msg debug "fooArgument: ${fooArgument}"
-
-	local barArgument="${2}"
-	__msg debug "barArgument: ${barArgument}"
-
-	## ----- main -----
-
-	__msg info "this is an example function"
-
-	__msg info "PATH: ${PATH}"
-	__msg info "umask: $(umask)"
-
-	return 0 # success
 }
 
-function fooFunction() {
-	barFunction barArgs
-}
+##function fooFunction() {
+##	barFunction barArgs
+##}
 
-function barFunction() {
-	bazFunction bazArgs
-}
+##function barFunction() {
+##	bazFunction bazArgs
+##}
 
-function bazFunction() {
-	__die 1 "dying for test purposes"
-}
+##function bazFunction() {
+##	__die 1 "dying for test purposes"
+##}

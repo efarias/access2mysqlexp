@@ -1,4 +1,4 @@
-## $Id: bashinator.lib.0.sh,v 1.8 2010/05/13 18:16:08 wschlich Exp wschlich $
+## $Id: bashinator.lib.0.sh,v 0.1 2010/11/14 3:19:20 efarias Exp efarias $
 ## vim:ts=4:sw=4:tw=200:nu:ai:nowrap:
 ##
 ## bashinator shell script framework library
