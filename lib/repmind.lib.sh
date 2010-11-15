@@ -13,10 +13,21 @@
 ## application initialization function
 ## (command line argument parsing and validation etc.)
 ##
+set -x
 
 function __init() {
         echo "Celite Reportes de Minas "$'\n'"Tau-iT Informática"
         echo "Base de datos: "$DB_NAME
+
+        ## Reviza si existen los directorios de trabajo
+        declare -a DIRS=(${BASEDIR} ${SQLDIR_ACT} ${SQLDIR_OLD} ${SQLDIR_NEW})
+        for i in "${DIRS[@]}"; do
+            echo $i
+            if [[ ! -d "${i}" ]]; then
+                mkdir $i
+            fi
+        done
+        
 	## parse command line options
 	while getopts ':eb:q' opt; do
 		case "${opt}" in
@@ -119,21 +130,16 @@ function exportarTablas() {
         echo $db
         echo "Exportando Registros desde "$DB_NAME
 
+        ## Reviza si ya existe el archivo values.sql y lo elimina
+        if [[ -e "${SQLDIR_ACT}/values.sql" ]]; then
+            f="${SQLDIR_ACT}/values.sql ${SQLDIR_OLD}"
+            mv $f
+        fi
+
+        ## Crea un nuevo archivo values.sql con los registros
 	for i in $( mdb-tables -1 $db); do
 		echo $i
 		mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
 	done
 
 }
-
-##function fooFunction() {
-##	barFunction barArgs
-##}
-
-##function barFunction() {
-##	bazFunction bazArgs
-##}
-
-##function bazFunction() {
-##	__die 1 "dying for test purposes"
-##}
