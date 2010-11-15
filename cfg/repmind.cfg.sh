@@ -4,10 +4,10 @@
 ##
 ## application settings
 ##
+#README.md
 
 export BASEDIR=/home/repmind
-export DB_NAME=README.md
-#pesajeSER.mdb
+export DB_NAME=pesajeSER.mdb
 export db=$BASEDIR/$DB_NAME
 export db_ASC=$db.asc
 export db_MD5=`md5sum -c $db_ASC`

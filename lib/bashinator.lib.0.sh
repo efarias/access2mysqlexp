@@ -587,7 +587,7 @@ function __msgLog() {
 	##   __LogAlert (default: 1)
 	##   __LogEmerg (default: 1)
 	##   __LogPrefixTimestamp (default: 1)
-	##   __LogPrefixSeverity (default: 1)
+        ##   __LogPrefixSeverity (default: 1)
 	##   __LogPrefixSource (default: 1)
 	##   __LogTarget (fallback: syslog.user)
 	##   __LogFileHasBeenWrittenTo (helper variable)

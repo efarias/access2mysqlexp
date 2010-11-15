@@ -4,7 +4,7 @@
 ##
 ## REQUISITOS
 ## =================
-## - MDBTools
+## - MDBTools v0.6pre1
 ## - mkdir
 ## - ls
 ##
@@ -15,15 +15,13 @@
 ##
 
 function __init() {
-        echo "Celite Reportes de Minas -- Tau-iT Informática"
+        echo "Celite Reportes de Minas "$'\n'"Tau-iT Informática"
         echo "Base de datos: "$DB_NAME
 	## parse command line options
 	while getopts ':eb:q' opt; do
 		case "${opt}" in
 			## option e
 			e)
-                                echo "Exportando Registros desde "$DB_NAME
-                                #exportar_tablas
 				declare -i A=1
 				;;
 			## option b
@@ -71,23 +69,55 @@ function __init() {
 function __main() {
 
 	## -- BEGIN YOUR OWN APPLICATION MAIN CODE HERE --
-        echo $db_ASC
-        echo $db_MD5
-        if [$db_MD5 = 1]; then
-            echo "Fallo"
+        verificarMd5
+        st=$?
+        echo $st
+        if [[ $st = '1' ]] ; then
+            exportarTablas
+        else
+            exit
         fi
-	echo $db
 	## -- END YOUR OWN APPLICATION MAIN CODE HERE --
 
 }
 
+function verificarMd5() {
+    md5sum $db > $db_ASC
+    echo $db_ASC
+    echo $db_MD5
+    echo ${db_MD5#'$db'}
+    s=${db_MD5#$db}
+        if [[ $s == ": FAILED" ]]; then
+            echo $s
+            echo "El Archivo $DB_NAME ha cambiado"
+            return 1
+        else
+            echo 'Nada'
+            return 0
+        fi
+
+}
 ##
 ## application worker functions
 ##
 
-function exportar_tablas() {
-        # Función para exportar cada tabla de la base de
-	# datos configurada en DB_ORI
+
+function exportarTablas() {
+        
+        # ----- head -----
+        #
+        # DESCRIPTION:
+        #   Función para exportar cada tabla de la base de
+        #   datos configurada en $DB_NAME
+        #
+        # ARGUMENTS:
+	#
+        # GLOBAL VARIABLES USED:
+        #   $SQLDIR_ACT
+        #   $db
+
+        echo $db
+        echo "Exportando Registros desde "$DB_NAME
 
 	for i in $( mdb-tables -1 $db); do
 		echo $i
