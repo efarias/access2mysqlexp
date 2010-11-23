@@ -7,13 +7,16 @@
 ## - MDBTools v0.6pre1
 ## - mkdir
 ## - ls
+## - gawk
+## - sed
+## - md5sum
 ##
 
 ##
 ## application initialization function
 ## (command line argument parsing and validation etc.)
 ##
-set -x
+#set -x
 
 function __init() {
         echo "Celite Reportes de Minas "$'\n'"Tau-iT Informática"
@@ -85,9 +88,13 @@ function __main() {
         echo $st
         if [[ $st = '1' ]] ; then
             exportarTablas
+            sqlParse $SQLDIR_NEW/valuesTmp.sql
+            sqlImport
         else
             exit
         fi
+
+        
 	## -- END YOUR OWN APPLICATION MAIN CODE HERE --
 
 }
@@ -130,7 +137,7 @@ function exportarTablas() {
         echo $db
         echo "Exportando Registros desde "$DB_NAME
 
-        ## Reviza si ya existe el archivo values.sql y lo elimina
+        ## Reviza si ya existe el archivo values.sql y lo mueve a SQLDIR_OLD
         if [[ -e "${SQLDIR_ACT}/values.sql" ]]; then
             f="${SQLDIR_ACT}/values.sql ${SQLDIR_OLD}"
             mv $f
@@ -142,4 +149,63 @@ function exportarTablas() {
 		mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
 	done
 
+        diff $SQLDIR_OLD/values.sql $SQLDIR_ACT/values.sql > $SQLDIR_NEW/valuesTmp.sql
+
 }
+
+function sqlParse() {
+
+        # ----- head -----
+        #
+        # DESCRIPTION:
+        #
+        #   Función que verifica la construcción correcta del archivo
+        #   SQL, luego de la exportación y comparación de archivos
+        #   antoguos y actuales.
+        #
+        # ARGUMENTS:
+	#
+        # GLOBAL VARIABLES USED:
+        #
+        #
+
+        ## -- code --
+        # Verifica si existe el archivo valuesTmp.sql
+        if [[ ! -e "${SQLDIR_NEW/valuesTmp.sql}" ]] ; then
+
+            echo "ERROR: No existe archivo valuesTmp.sql"
+            exit
+
+        fi
+
+        ## Crea consulta SQL para eliminar registros en MySQL que han sido
+        ## eliminados en la base de datos access
+        awk '/</{print $0}' $1 | sed -e 's/< INSERT INTO/DELETE FROM/g; s/ (/ WHERE (/g; s/VALUES WHERE/=/g '> $SQLDIR_NEW/values_delete.sql
+        ## Crea consulta SQL para insertar los nuevos registros de la base de datos
+        ## access.
+        awk '/>/{print $0}' $1 | sed -e 's/> //g' > $SQLDIR_NEW/values_insert.sql
+}
+
+function sqlImport() {
+
+        # ----- head -----
+        #
+        # DESCRIPTION:
+        #
+        #   Función que importa las consultas contenidas en los archivos SQL
+        #   a la base de
+        #
+        # ARGUMENTS:
+	#
+        # GLOBAL VARIABLES USED:
+        #   $MySQL_HOSTNAME
+        #   $MySQL_DB
+
+        ## -- code --
+mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_insert.sql
+mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_delete.sql
+exit
+}
+
+
+

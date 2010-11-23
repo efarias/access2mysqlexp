@@ -14,5 +14,6 @@ export db_MD5=`md5sum -c $db_ASC`
 export SQLDIR_OLD=$BASEDIR/values_old
 export SQLDIR_ACT=$BASEDIR/values_act
 export SQLDIR_NEW=$BASEDIR/values_new
-
+export MySQL_HOSTNAME=127.0.0.1
+export MySQL_DB=repmin
 
