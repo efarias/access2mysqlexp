@@ -1,22 +1,40 @@
-## $Id: repmind.lib.sh,v 0.1 2010/11/14 3:19:20 efarias Exp efarias $$
-## vim:ts=4:sw=4:tw=200:nu:ai:nowrap:
+#!/bin/bash
+## $Id: repmind.lib.sh v 1.0 11/26/10 21:24:37 HSP efarias Exp $
+## vim:ts=2:sw=2:tw=200:nu:ai:nowrap:
 
-##
-## REQUISITOS
-## =================
-## - MDBTools v0.6pre1
-## - mkdir
-## - ls
-## - gawk
-## - sed
-## - md5sum
-##
+#===============================================================================
+#
+#          File:  repmind.lib.sh
+# 
+#         Usage:  ./repmind.lib.sh 
+# 
+#   Description:  Librearías de funciones para la aplicación
+#				  				repmind
+# 
+#       Options:  ---
+#  Requirements:  -MDBTools v0.6pre1
+#									-mkdir
+#									-ls
+#									-gawk
+#									-sed
+#									-md5sum
+#          Bugs:  ---
+#         Notes:  ---
+#        Author:  Eduardo A. Farías R. (efarias), eduardo.farias@tau-it.cl
+#       Company:  Tau-iT Informática
+#       Created:  11/26/10 21:24:37 HSP
+#      Revision:  1.0
+#===============================================================================
 
-##
-## application initialization function
-## (command line argument parsing and validation etc.)
-##
-#set -x
+#set -x																			# Debug mode
+set -o nounset                              # Treat unset variables as an error
+
+#-------------------------------------------------------------------------------
+#
+# application initialization function
+# (command line argument parsing and validation etc.)
+# 
+#-------------------------------------------------------------------------------
 
 function __init() {
         echo "Celite Reportes de Minas "$'\n'"Tau-iT Informática"
@@ -76,16 +94,33 @@ function __init() {
 
 }
 
-##
-## application main function
-##
 
-function __main() {
+#-------------------------------------------------------------------------------
+#  Application main function
+#-------------------------------------------------------------------------------
 
-	## -- BEGIN YOUR OWN APPLICATION MAIN CODE HERE --
+
+function __main() 
+{
+
+#===  FUNCTION  ================================================================
+#
+#	            Name:  __main
+#
+#      Description:  Comienzo de la aplicación
+#
+#       Parameters:  
+#
+#        Variables:  st, 
+#
+# Global Variables:	 SQLDIR_NEW
+#
+#          Returns:  
+#
+#===============================================================================
+
         verificarMd5
         st=$?
-        echo $st
         if [[ $st = '1' ]] ; then
             exportarTablas
             sqlParse $SQLDIR_NEW/valuesTmp.sql
@@ -94,46 +129,62 @@ function __main() {
             exit
         fi
 
-        
-	## -- END YOUR OWN APPLICATION MAIN CODE HERE --
+}	# ----------  end of function __main  ----------
 
-}
 
-function verificarMd5() {
-    md5sum $db > $db_ASC
-    echo $db_ASC
-    echo $db_MD5
-    echo ${db_MD5#'$db'}
+#-------------------------------------------------------------------------------
+#  application worker functions
+#-------------------------------------------------------------------------------
+
+
+function verificarMd5() 
+{
+
+#===  FUNCTION  ================================================================
+#
+#	            Name:  verificarMd5
+#
+#      Description:  Función que verifica la suma MD5 de la base de datos
+#										 Access.
+#
+#       Parameters:
+#
+#        Variables:  
+#
+# Global Variables:	 -$db 
+#										 -$db_ASC
+#										 -$db_MD5
+#
+#          Returns:  1 si archivo ha cambiado, de lo contrario 0
+#
+#===============================================================================
+
+	md5sum $db > $db_ASC
     s=${db_MD5#$db}
-        if [[ $s == ": FAILED" ]]; then
-            echo $s
-            echo "El Archivo $DB_NAME ha cambiado"
-            return 1
-        else
-            echo 'Nada'
-            return 0
-        fi
 
-}
-##
-## application worker functions
-##
+	if [[ $s == ": FAILED" ]]; then
+		return 1
+	else
+		return 0
+	fi
+
+} # ----------  end of function verificarMd5  ----------
 
 
-function exportarTablas() {
-        
-        # ----- head -----
-        #
-        # DESCRIPTION:
-        #   Función para exportar cada tabla de la base de
-        #   datos configurada en $DB_NAME
-        #
-        # ARGUMENTS:
-	#
-        # GLOBAL VARIABLES USED:
-        #   $SQLDIR_ACT
-        #   $db
 
+function exportarTablas ()
+{
+
+	#===  FUNCTION  ================================================================
+	#          NAME:  exportarTablas
+	#   DESCRIPTION:  Función para exportar cada tabla de la base de
+	#									datos configurada en $DB_NAME
+	#    PARAMETERS: 
+	#		GLOBAL VARS:	$SQLDIR_ACT
+	#									$db
+	#       RETURNS:  
+	#===============================================================================
+	
         echo $db
         echo "Exportando Registros desde "$DB_NAME
 
@@ -144,32 +195,28 @@ function exportarTablas() {
         fi
 
         ## Crea un nuevo archivo values.sql con los registros
-	for i in $( mdb-tables -1 $db); do
-		echo $i
-		mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
-	done
+				for i in $( mdb-tables -1 $db); do
+					echo $i
+					mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
+				done
 
         diff $SQLDIR_OLD/values.sql $SQLDIR_ACT/values.sql > $SQLDIR_NEW/valuesTmp.sql
 
-}
+}	# ----------  end of function exportarTablas  ----------
 
+        
 function sqlParse() {
 
-        # ----- head -----
-        #
-        # DESCRIPTION:
-        #
-        #   Función que verifica la construcción correcta del archivo
-        #   SQL, luego de la exportación y comparación de archivos
-        #   antoguos y actuales.
-        #
-        # ARGUMENTS:
-	#
-        # GLOBAL VARIABLES USED:
-        #
-        #
 
-        ## -- code --
+#===  FUNCTION  ================================================================
+#          NAME:  sqlParse
+#   DESCRIPTION:  Función que verifica la construcción correcta del archivo
+#									SQL, luego de la exportación y comparación de archivos
+#									antiguos y actuales.
+#    PARAMETERS:  
+#       RETURNS:  
+#===============================================================================
+
         # Verifica si existe el archivo valuesTmp.sql
         if [[ ! -e "${SQLDIR_NEW/valuesTmp.sql}" ]] ; then
 
@@ -180,32 +227,34 @@ function sqlParse() {
 
         ## Crea consulta SQL para eliminar registros en MySQL que han sido
         ## eliminados en la base de datos access
-        awk '/</{print $0}' $1 | sed -e 's/< INSERT INTO/DELETE FROM/g; s/ (/ WHERE (/g; s/VALUES WHERE/=/g '> $SQLDIR_NEW/values_delete.sql
+        awk '/</{print $0}' $1 | 
+				sed -e 's/< INSERT INTO/DELETE FROM/g; s/ (/ WHERE (/g; s/VALUES WHERE/=/g '> $SQLDIR_NEW/values_delete.sql
         ## Crea consulta SQL para insertar los nuevos registros de la base de datos
         ## access.
-        awk '/>/{print $0}' $1 | sed -e 's/> //g' > $SQLDIR_NEW/values_insert.sql
-}
+        awk '/>/{print $0}' $1 | 
+				sed -e 's/> //g' > $SQLDIR_NEW/values_insert.sql
+
+} # ----------  end of function sqlParse  ----------
+
 
 function sqlImport() {
 
-        # ----- head -----
-        #
-        # DESCRIPTION:
-        #
-        #   Función que importa las consultas contenidas en los archivos SQL
-        #   a la base de
-        #
-        # ARGUMENTS:
-	#
-        # GLOBAL VARIABLES USED:
-        #   $MySQL_HOSTNAME
-        #   $MySQL_DB
 
-        ## -- code --
+#===  FUNCTION  ================================================================
+#          NAME:  sqlImport
+#   DESCRIPTION:  Función que introduce las consultas contenidas en los
+#									archivos SQL generados.
+#    PARAMETERS:  
+#		GLOBAL VARS:	$MySQL_HOSTNAME
+#									$MySQL_DB
+#       RETURNS:  
+#===============================================================================
+
 mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_insert.sql
 mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_delete.sql
 exit
-}
+} # ----------  end of function sqlImport  ----------
+
 
 
 
