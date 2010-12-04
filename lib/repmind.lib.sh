@@ -26,8 +26,8 @@
 #      Revision:  1.0
 #===============================================================================
 
-#set -x																			# Debug mode
-set -o nounset                              # Treat unset variables as an error
+set -x																			# Debug mode
+#set -o nounset                              # Treat unset variables as an error
 
 #-------------------------------------------------------------------------------
 #
@@ -197,7 +197,9 @@ function exportarTablas ()
         ## Crea un nuevo archivo values.sql con los registros
 				for i in $( mdb-tables -1 $db); do
 					echo $i
-					mdb-export -SHI mysql $db $i >> $SQLDIR_ACT/values.sql
+					if [[ $i != 'PESOEXEDIDO' ]] ; then
+						mdb-export -SHI mysql -D '%F %T' $db $i >> $SQLDIR_ACT/values.sql
+					fi
 				done
 
         diff $SQLDIR_OLD/values.sql $SQLDIR_ACT/values.sql > $SQLDIR_NEW/valuesTmp.sql
@@ -229,7 +231,8 @@ function sqlParse() {
         ## eliminados en la base de datos access
         awk '/</{print $0}' $1 | 
 				sed -e 's/< INSERT INTO/DELETE FROM/g; s/ (/ WHERE (/g; s/VALUES WHERE/=/g '> $SQLDIR_NEW/values_delete.sql
-        ## Crea consulta SQL para insertar los nuevos registros de la base de datos
+        
+				## Crea consulta SQL para insertar los nuevos registros de la base de datos
         ## access.
         awk '/>/{print $0}' $1 | 
 				sed -e 's/> //g' > $SQLDIR_NEW/values_insert.sql
