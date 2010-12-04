@@ -26,7 +26,7 @@
 #      Revision:  1.0
 #===============================================================================
 
-set -x																			# Debug mode
+#set -x																			# Debug mode
 #set -o nounset                              # Treat unset variables as an error
 
 #-------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ function __init() {
         done
         
 	## parse command line options
-	while getopts ':eb:q' opt; do
+	while getopts ':eb:ixq' opt; do
 		case "${opt}" in
 			## option e
 			e)
@@ -59,6 +59,12 @@ function __init() {
 			## option b
 			b)
 				B="${OPTARG}"
+				;;
+			i)
+				llenarTodos
+				;;
+			x)
+				set -x
 				;;
 			## quiet operation
 			q)
@@ -128,6 +134,8 @@ function __main()
         else
             exit
         fi
+
+				exit
 
 }	# ----------  end of function __main  ----------
 
@@ -206,7 +214,51 @@ function exportarTablas ()
 
 }	# ----------  end of function exportarTablas  ----------
 
-        
+       
+
+function llenarTodos ()
+{
+	#===  FUNCTION  ================================================================
+	#
+	#	            Name:  llenarTodos
+	#
+	#      Description:  Rellena con todos los registros
+	#
+	#       Parameters:
+	#
+	#        Variables:
+	#
+	# Global Variables:	
+	#
+	#          Returns:  
+	#
+	#===============================================================================
+
+        echo $db
+        echo "Exportando Registros desde "$DB_NAME
+
+        ## Reviza si ya existe el archivo values.sql y lo mueve a SQLDIR_OLD
+        if [[ -e "${SQLDIR_NEW}/values_new.sql" ]]; then
+            rm  $SQLDIR_NEW/values_new.sql
+						touch $SQLDIR_NEW/values_new.sql
+					else
+						touch $SQLDIR_NEW/values_new.sql
+				fi
+
+        ## Crea un nuevo archivo values.sql con los registros
+				for i in $( mdb-tables -1 $db); do
+					echo $i
+					if [[ $i != 'PESOEXEDIDO' ]] ; then
+						mdb-export -SHI mysql -D '%F %T' $db $i >> $SQLDIR_NEW/values_new.sql
+					fi
+				done
+
+mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_new.sql
+
+exit
+
+}	# ----------  end of function llenarTodos  ----------
+
 function sqlParse() {
 
 
@@ -253,8 +305,9 @@ function sqlImport() {
 #       RETURNS:  
 #===============================================================================
 
-mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_insert.sql
 mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_delete.sql
+
+mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/repmind/values_new/values_insert.sql
 exit
 } # ----------  end of function sqlImport  ----------
 
