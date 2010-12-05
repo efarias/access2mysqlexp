@@ -1,10 +1,9 @@
-## $Id: repmind.cfg.sh,v 0.1 2010/11/14 3:19:20 efarias Exp efarias $
+## $Id: access2mysqlexp.cfg.sh,v 0.1 2010/11/14 3:19:20 efarias Exp efarias $
 ## vim:ts=4:sw=4:tw=200:nu:ai:nowrap:
 
 ##
 ## application settings
 ##
-#README.md
 
 export BASEDIR=/home/repmind
 export DB_NAME=pesajeSER.mdb

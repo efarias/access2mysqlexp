@@ -1,4 +1,4 @@
-Repmind - Reportes de Minas Daemon
+Access2MysqlExp - Herramienta de exportación de base de datos Access a MySQL
 ==================================
 
 &copy; 2010-2011 Tau-iT Informática, Eduardo A. Farías Reyes <eduardo.farias@tau-it.cl>
@@ -8,7 +8,9 @@ Repmind - Reportes de Minas Daemon
 Descripción:
 ------------
 
-Repmind es un script para bash, que tiene la función de realizar la exportación de registros desde la base de datos access, del sistema de pesaje, hacia la base de datos MySQL, del sistema de reportes de Minas Repmin.
+Access2MySQLExp es un script para bash, que tiene la función de realizar la exportación de registros desde una base de datos access, como origen, hacia una BD en un servidor MySQL.
+
+Esta herramienta nace como un subproyecto del sistema de reportes de minas Celite.
 
 Este script utiliza la librería y utilidades del proyecto [MDBTools](http://mdbtools.sourceforge.net/ "MDBTools") y el ambiente de consola de comandos tipo Unix[cygwin] (http://www.cygwin.com/ "Cygwin").
 

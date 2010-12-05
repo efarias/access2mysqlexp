@@ -311,6 +311,4 @@ mysql -h $MySQL_HOSTNAME -u repmin --password=repmin -D $MySQL_DB -vvv < /home/r
 exit
 } # ----------  end of function sqlImport  ----------
 
-
-
-
+# ----- EOF -----
